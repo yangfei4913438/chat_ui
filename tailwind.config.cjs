@@ -4,6 +4,13 @@ const distance = {
   d2: '2px',
   d3: '3px',
   d4: '4px',
+  header: '4rem',
+  body: 'calc(100vh - 4rem)',
+  sm: '640px',
+  md: '854px',
+  lg: '1280px',
+  xl: '1536px',
+  '2xl': '1920px',
   'screen-10': '10%',
   'screen-20': '20%',
   'screen-30': '30%',
@@ -17,24 +24,22 @@ const distance = {
 
 /** @type {import('tailwindcss').Config} */
 const config = {
-  content: ['./src/**/*.{js,ts,jsx,tsx,mdx,scss}'],
+  content: ['./src/**/*.{js,ts,jsx,tsx,css,scss}'],
   darkMode: ["class"],
   safelist: [],
   theme: {
     container: {
       center: true,
       padding: {
-        DEFAULT: '2rem',
-        md: '2rem',
-        lg: '3rem',
-        xl: '4rem',
+        DEFAULT: '4rem',
+        xl: '8rem',
       },
       screens: {
         sm: '640px',
-        md: '768px',
-        lg: '1024px',
-        xl: '1280px',
-        '2xl': '1536px',
+        md: '854px',
+        lg: '1280px',
+        xl: '1536px',
+        '2xl': '1920px',
       },
     },
     extend: {
@@ -98,6 +103,8 @@ const config = {
       height: distance,
       minHeight: distance,
       maxHeight: distance,
+      margin: distance,
+      padding: distance,
       cursor: {
         'zoom-in': 'zoom-in',
         'zoom-out': 'zoom-out',
@@ -105,7 +112,7 @@ const config = {
     },
   },
   corePlugins: {},
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require('@tailwindcss/typography')],
 };
 
 module.exports = config;
