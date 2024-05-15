@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     // 代理设置查看 https://cn.vitejs.dev/config/server-options.html#server-proxy
     proxy: {
-      // 访问 /api/test 等价于访问 http://localhost:3305/test
+      // 访问 /api/test 等价于访问 http://localhost:8000/test
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
