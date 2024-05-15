@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useWebSocket } from 'ahooks';
-import { Send } from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
+import React, {useCallback, useEffect, useState} from 'react';
+import {useWebSocket} from 'ahooks';
+import {Send} from 'lucide-react';
+import {useMutation} from '@tanstack/react-query';
 
 import localCache from '@/core/cache';
 import cache from '@/core/cache';
-import { cacheKeys } from '@/consts/cache';
+import {cacheKeys} from '@/consts/cache';
 import useMessages from '@/store/hooks/useMessages';
-import { createMessageService } from '@/services/message';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import {createMessageService} from '@/services/message';
+import {Textarea} from '@/components/ui/textarea';
+import {Button} from '@/components/ui/button';
 
 const statusMap = {
   0: '连接中',
@@ -31,7 +31,7 @@ const MessageInput = ({ tid }: { tid: string }) => {
   const [val, setVal] = useState<string>('');
 
   const { latestMessage, sendMessage, disconnect, readyState, connect } = useWebSocket(
-    `ws://0.0.0.0:8000/ws/${token}/${tid}`
+    `ws://ai-server:8000/ws/${token}/${tid}`
   );
 
   // 获取本地缓存的 tag_id
