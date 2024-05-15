@@ -27,13 +27,13 @@ type IsChat<Path> = Path extends 'chat' ? Path : never; // 判断类型的值为
 type IsNull<Path> = Path extends undefined | '' | null ? never : Path; // 判断是否为空，符合条件就是 never，否则就是正常路径
 type IsMore<Path> = Path extends `${infer PartA}/${infer PartB}` ? never : IsNull<Path>; // 判断能否拆分成 2 部分，能就是 never 不能就看看是不是空
 // 复合判断
-// 看是不是能拆成三份，如果能就分别判断，三个部分的值是否在预期内，反之就是不符合条件的值
-type SurveyPath<Path> = Path extends `/${infer PartA}/${infer PartB}`
+// 看是不是能拆成2份，如果能就分别判断，2个部分的值是否在预期内，反之就是不符合条件的值
+type TagPath<Path> = Path extends `/${infer PartA}/${infer PartB}`
   ? `/${IsChat<PartA>}/${IsMore<PartB>}`
   : never;
 
 // 路由类型定义
-export type StringPath<P> = RouteBaseType | SurveyPath<P>;
+export type StringPath<P> = RouteBaseType | TagPath<P>;
 
 // 跳转路由的可传递参数
 export type RoutePath<P> =
