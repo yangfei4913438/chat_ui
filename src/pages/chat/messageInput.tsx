@@ -31,7 +31,7 @@ const MessageInput = ({ tid }: { tid: string }) => {
   const [val, setVal] = useState<string>('');
 
   const { latestMessage, sendMessage, disconnect, readyState, connect } = useWebSocket(
-    `ws://ai-server:8000/ws/${token}/${tid}`
+    `wss://ai-server:8000/ws/${token}/${tid}`
   );
 
   // 获取本地缓存的 tag_id
