@@ -5,7 +5,7 @@ WORKDIR /temp
 
 # Copying package files and installing dependencies
 COPY package.json yarn.lock .
-RUN yarn install --registry=https://registry.npmmirror.com/ --frozen-lockfile && yarn cache clean --force
+RUN yarn install --frozen-lockfile && yarn cache clean --force
 
 # Copying source files and building the application
 COPY . .
