@@ -32,12 +32,6 @@ type SurveyPath<Path> = Path extends `/${infer PartA}/${infer PartB}`
   ? `/${IsChat<PartA>}/${IsMore<PartB>}`
   : never;
 
-// 问卷路由，传入ID获取到完整路由地址
-export const surveyPath = {
-  edit: (id: string) => <const>`/survey/edit/${id}`, // 路由匹配，必须使用const断言
-  stat: (id: string) => <const>`/survey/stat/${id}`,
-};
-
 // 路由类型定义
 export type StringPath<P> = RouteBaseType | SurveyPath<P>;
 

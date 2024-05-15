@@ -6,6 +6,7 @@ interface UserLogin {
 
 // 用户类型，注册使用
 interface UserCreate extends UserLogin {
+  nickname: string;
   email: string;
   invite_code: string;
 }
@@ -14,6 +15,7 @@ interface UserCreate extends UserLogin {
 interface UserLocal {
   id: string;
   username: string;
+  nickname: string;
   email: string;
   invite_code: string;
   is_active: boolean;

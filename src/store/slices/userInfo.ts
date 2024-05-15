@@ -4,6 +4,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 const initState: UserLocal = {
   id: '',
   username: '',
+  nickname: '',
   email: '',
   invite_code: '',
   is_active: false,

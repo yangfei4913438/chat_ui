@@ -38,14 +38,14 @@ const UserInfo = () => {
       <div className='flex items-center'>
         <span className='prose-sm flex items-center text-white'>
           <UserRound />
-          {userInfo.username}
+          {userInfo.nickname}
         </span>
         <Button variant='link' onClick={logoutHandler}>
           退出
         </Button>
       </div>
     ),
-    [logoutHandler, userInfo.username]
+    [logoutHandler, userInfo.nickname]
   );
 
   const Login = useMemo(() => {

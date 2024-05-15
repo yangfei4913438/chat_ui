@@ -9,7 +9,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 
-import { RoutePath, route_full_path } from '@/consts/routes';
+import { route_full_path, RoutePath } from '@/consts/routes';
 import localCache from '@/core/cache';
 import { cacheKeys } from '@/consts/cache';
 

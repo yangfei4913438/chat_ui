@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -15,8 +14,6 @@ import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userRegisterServices } from '@/services/user';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useState } from 'react';
 import useUserInfo from '@/store/hooks/useUserInfo';
 import { useToast } from '@/components/ui/use-toast';
 import useProjectRoute from '@/hooks/useProjectRoute';
@@ -33,6 +30,9 @@ const Register = () => {
     username: z.string().min(2, {
       message: '用户名最少需要 2 个字符.',
     }),
+    nickname: z.string().min(2, {
+      message: '昵称最少需要 2 个字符.',
+    }),
     password: z.string().min(6, {
       message: '密码最少需要 6 个字符.',
     }),
@@ -44,6 +44,7 @@ const Register = () => {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       username: '',
+      nickname: '',
       password: '',
       email: '',
       invite_code: '',
@@ -110,6 +111,21 @@ const Register = () => {
                     </FormLabel>
                     <FormControl>
                       <Input placeholder={'请输入您的用户名'} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name={'nickname'}
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='flex items-center'>
+                      显示昵称<span className='inline-block h-6 text-2xl text-red-600'>*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder={'请输入您的显示昵称'} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -1,5 +1,5 @@
 import masterzhou from '@/assets/masterzhou.png';
-import { useTitle, useRequest } from 'ahooks';
+import { useRequest, useTitle } from 'ahooks';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import {
@@ -69,7 +69,7 @@ const Login = () => {
         });
         setTimeout(() => {
           // 跳转到对话页面
-          goToRoute(route_full_path.chat, { replace: true });
+          goToRoute(route_full_path.chat);
         }, 1000);
       },
       onError: ({ data: { detail } }: any) => {
