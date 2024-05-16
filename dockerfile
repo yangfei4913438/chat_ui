@@ -12,9 +12,15 @@ COPY . .
 RUN yarn run build
 
 # production stage
-FROM node:lts-alpine
+FROM nginx:stable-alpine
 
 WORKDIR /chat_ui
 
 # Copying only necessary files from build-stage
 COPY --from=build-stage /temp/dist .
+
+# Expose port
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
