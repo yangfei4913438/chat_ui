@@ -12,7 +12,7 @@ COPY . .
 RUN yarn run build
 
 # production stage
-FROM alpine:latest
+FROM node:lts-alpine
 
 WORKDIR /chat_ui
 
