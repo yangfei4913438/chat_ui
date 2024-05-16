@@ -16,9 +16,9 @@ const useMessages = () => {
   function removeDuplicates(arr: Message[]) {
     // 使用reduce方法和一个对象来跟踪遇到的type和url组合
     return arr.reduce((unique, currentObj) => {
-      // 检查当前对象的type和url是否已经存在于unique对象中
+      // 检查当前对象的type和content是否已经存在于unique对象中
       const isDuplicate = Object.keys(unique).some((key) => {
-        // 创建一个唯一键，由type和url组成
+        // 创建一个唯一键，由type和content组成
         const uniqueKey = `${currentObj.type}-${currentObj.content}`;
         // 如果unique对象中已经存在这个键，说明是重复的
         return key === uniqueKey;

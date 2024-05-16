@@ -84,7 +84,7 @@ const MessageInput = ({ tid }: { tid: string }) => {
   const handleSend = useCallback(() => {
     // 将输入的内容转换成安全的内容，再发送给服务端
     const cleanVal = DOMPurify.sanitize(val);
-    // 二次过滤，清楚特殊符号
+    // 二次过滤，移除特殊符号
     const send_data = cleanVal.replace(/<[^>]*>/g, '');
     // 发送请求
     mutate2(
