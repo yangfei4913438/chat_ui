@@ -12,18 +12,9 @@ COPY . .
 RUN yarn run build
 
 # production stage
-FROM nginx:stable-alpine as production-stage
+FROM alpine:latest
 
-# Clearing the nginx default directory
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /chat_ui
 
 # Copying only necessary files from build-stage
-COPY --from=build-stage /temp/dist /usr/share/nginx/html
-COPY --from=build-stage /temp/chat_ui.conf /etc/nginx/conf.d
-
-# Exposing the right port
-EXPOSE 6000
-
-# Since we are using an Nginx image, it will start Nginx automatically,
-# but we can still specify the command explicitly
-CMD ["nginx", "-g", "daemon off;"]
+COPY --from=build-stage /temp/dist .
