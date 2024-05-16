@@ -1,15 +1,16 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {useWebSocket} from 'ahooks';
-import {Send} from 'lucide-react';
-import {useMutation} from '@tanstack/react-query';
-
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useWebSocket } from 'ahooks';
+import { Send } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import DOMPurify from 'dompurify';
 import localCache from '@/core/cache';
 import cache from '@/core/cache';
-import {cacheKeys} from '@/consts/cache';
+import { cacheKeys } from '@/consts/cache';
 import useMessages from '@/store/hooks/useMessages';
-import {createMessageService} from '@/services/message';
-import {Textarea} from '@/components/ui/textarea';
-import {Button} from '@/components/ui/button';
+import { createMessageService } from '@/services/message';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { ai_return_tips, user_input_warning } from '@/consts/notice';
 
 const statusMap = {
   0: '连接中',
@@ -30,9 +31,16 @@ const MessageInput = ({ tid }: { tid: string }) => {
   const token = localCache.getItem(cacheKeys.token);
   const [val, setVal] = useState<string>('');
 
-  const { latestMessage, sendMessage, disconnect, readyState, connect } = useWebSocket(
-    `wss://${window.location.host}/ws/${token}/${tid}`
-  );
+  const ws_url = useMemo(() => {
+    let url = `wss://${window.location.host}/ws/${token}/${tid}`;
+    // 使用Vite时检查是否为开发环境
+    if (import.meta.env && import.meta.env.DEV) {
+      url = `ws://0.0.0.0:8000/ws/${token}/${tid}`;
+    }
+    return url;
+  }, [tid, token]);
+
+  const { latestMessage, sendMessage, disconnect, readyState, connect } = useWebSocket(ws_url);
 
   // 获取本地缓存的 tag_id
   const local_id = cache.getItem('tag_id');
@@ -74,12 +82,21 @@ const MessageInput = ({ tid }: { tid: string }) => {
   }, [connect, disconnect, local_id, tid]);
 
   const handleSend = useCallback(() => {
+    // 将输入的内容转换成安全的内容，再发送给服务端
+    const cleanVal = DOMPurify.sanitize(val);
+    // 二次过滤，清楚特殊符号
+    const send_data = cleanVal.replace(/<[^>]*>/g, '');
+    // 发送请求
     mutate2(
-      { type: 'text', tag_id: tid + '', sender_type: 1, content: val },
+      { type: 'text', tag_id: tid + '', sender_type: 1, content: send_data || user_input_warning },
       {
         onSuccess: (data) => {
           tempShow(tid, data);
-          sendMessage(val);
+          if (!send_data) {
+            sendMessage(ai_return_tips);
+          } else {
+            sendMessage(send_data);
+          }
           setVal('');
         },
       }

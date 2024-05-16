@@ -4,26 +4,22 @@ import dayjs from 'dayjs';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import { Virtuoso } from 'react-virtuoso';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+import { user_input_warning } from '@/consts/notice';
 
 const ChatList = () => {
   const { messages } = useMessages();
 
   // 渲染文本, 将文本中的 ** 加粗, 换行符转换为 <br />
-  const renderText = (content: string) => {
-    return content.split('\n').map((line, index) => (
-      <React.Fragment key={index}>
-        {line.split('**').map((part, index) => {
-          if (index % 2 === 1) {
-            // 如果是加粗的部分
-            return <strong key={index}>{part.replace('**', '')}</strong>;
-          } else {
-            // 如果是普通文本部分
-            return part;
-          }
-        })}
-        {index < content.length - 1 && <br />}
-      </React.Fragment>
-    ));
+  const renderCleanHtml = (content: string) => {
+    if (content === user_input_warning) {
+      return `<p class="text-red-500 font-bold">${user_input_warning}</p>`;
+    }
+    const rawHtml = marked(content.replace(/<[^>]*>/g, '')) as string;
+    // 转换成内联 html之前，先处理一下来自服务器的内容，避免有漏网的不安全字符
+    const res = DOMPurify.sanitize(rawHtml);
+    return res || `<p class="text-red-500 font-bold">${user_input_warning}</p>`;
   };
 
   return (
@@ -34,7 +30,7 @@ const ChatList = () => {
         initialTopMostItemIndex={messages.length - 1} // 设置初始滚动位置
         itemContent={(idx, item) => {
           return (
-            <div className={'py-2 flex space-x-2 w-full'} key={item.id}>
+            <div className={'py-2 flex space-x-2 w-full pr-12'} key={item.id}>
               <div className='w-10 flex-grow-0 flex-shrink-0 text-right pr-0.5'>
                 {item.sender_type == 0 ? '大师:' : '我:'}
               </div>
@@ -52,7 +48,10 @@ const ChatList = () => {
                     />
                   </div>
                 ) : (
-                  <div>{renderText(item.content)}</div>
+                  <div
+                    className='prose max-w-none'
+                    dangerouslySetInnerHTML={{ __html: renderCleanHtml(item.content) }}
+                  />
                 )}
               </div>
             </div>
