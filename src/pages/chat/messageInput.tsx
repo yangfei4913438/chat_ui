@@ -170,7 +170,7 @@ const MessageInput: FC<IProps> = ({ tid, messages }) => {
         change_id: id,
         tag_id: tid,
         type: 'text',
-        sender_type: 0,
+        sender_type: 1,
         content: send_data || user_input_warning,
         created_at: dayjs().toISOString(),
         updated_at: dayjs().toISOString(),
