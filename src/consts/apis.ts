@@ -12,6 +12,7 @@ export type ConfigKeyType =
   | 'updateTag'
   | 'messages'
   | 'createMessage'
+  | 'updateMessage'
   | 'delMessage';
 
 interface ConfigObject {
@@ -81,6 +82,12 @@ export const apiConfig: ApiConfigType = {
     method: 'post',
     url: '/api/message',
     needId: false,
+  },
+  // 更新聊天消息
+  updateMessage: {
+    method: 'put',
+    url: '/api/message',
+    needId: true,
   },
   // 删除聊天消息
   delMessage: {

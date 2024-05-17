@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useWebSocket } from 'ahooks';
 import { Send } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
@@ -7,10 +7,11 @@ import localCache from '@/core/cache';
 import cache from '@/core/cache';
 import { cacheKeys } from '@/consts/cache';
 import useMessages from '@/store/hooks/useMessages';
-import { createMessageService } from '@/services/message';
+import { createMessageService, updateMessageService } from '@/services/message';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { ai_return_tips, user_input_warning } from '@/consts/notice';
+import dayjs from 'dayjs';
 
 const statusMap = {
   0: '连接中',
@@ -26,8 +27,13 @@ enum ReadyState {
   Closed = 3,
 }
 
-const MessageInput = ({ tid }: { tid: string }) => {
-  const { pushMessage, tempShow } = useMessages();
+interface IProps {
+  messages: Message[];
+  tid: string;
+}
+
+const MessageInput: FC<IProps> = ({ tid, messages }) => {
+  const { updateMessage, pushMessage } = useMessages();
   const token = localCache.getItem(cacheKeys.token);
   const [val, setVal] = useState<string>('');
 
@@ -45,26 +51,92 @@ const MessageInput = ({ tid }: { tid: string }) => {
   // 获取本地缓存的 tag_id
   const local_id = cache.getItem('tag_id');
 
-  const { mutate: mutate1 } = useMutation({
+  const { mutate } = useMutation({
     mutationFn: async (data: MessageCreate) => await createMessageService(data),
-    onSuccess: (data) => {
-      console.log('收到数据:', data);
-      pushMessage(data);
-    },
+    retry: 0,
   });
 
   const { mutate: mutate2 } = useMutation({
     mutationFn: async (data: MessageCreate) => await createMessageService(data),
+    retry: 0,
+  });
+
+  const { mutate: mutate3 } = useMutation({
+    mutationFn: async (data: MessageUpdate) => await updateMessageService(data),
+    retry: 0,
   });
 
   useEffect(() => {
     if (!latestMessage) return;
-    const { url, message } = JSON.parse(latestMessage.data);
+    const { id, url, message } = JSON.parse(latestMessage.data);
     console.log('url:', url, ' message:', message);
-    if (url) {
-      mutate1({ type: 'mp3', tag_id: tid + '', sender_type: 0, content: url });
-    } else {
-      mutate1({ type: 'text', tag_id: tid + '', sender_type: 0, content: message });
+
+    // 不存在，自动往后台追加数据
+    const existText = messages.filter((m) => String(m.id) === id && m.type === 'text').length > 0;
+    const existMp3 = messages.filter((m) => String(m.id) === id && m.type === 'mp3').length > 0;
+    if (!existMp3 && url) {
+      pushMessage({
+        id,
+        change_id: id,
+        tag_id: tid,
+        type: 'mp3',
+        sender_type: 0,
+        content: url,
+        created_at: dayjs().toISOString(),
+        updated_at: dayjs().toISOString(),
+      });
+      mutate(
+        {
+          type: 'mp3',
+          tag_id: tid + '',
+          sender_type: 0,
+          content: url,
+        },
+        {
+          onSuccess: (data) => {
+            updateMessage({ ...data, change_id: id });
+          },
+        }
+      );
+    }
+    if (!existText && message) {
+      // 新的直接添加
+      pushMessage({
+        id,
+        change_id: id,
+        tag_id: tid,
+        type: 'text',
+        sender_type: 0,
+        content: message,
+        created_at: dayjs().toISOString(),
+        updated_at: dayjs().toISOString(),
+      });
+      mutate2(
+        {
+          type: 'text',
+          tag_id: tid + '',
+          sender_type: 0,
+          content: message,
+        },
+        {
+          onSuccess: (data) => {
+            updateMessage({ ...data, change_id: id });
+          },
+        }
+      );
+    }
+
+    // 如果内容存在，直接追加
+    if (message && existText) {
+      const data = messages.find((m) => String(m.change_id) === id && m.type === 'text')!;
+      console.log('追加回答。。。');
+      const content = data.content + message;
+      updateMessage({ ...data, content });
+      // 更新后台数据
+      mutate3({
+        id: data.id,
+        content,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestMessage]);
@@ -91,7 +163,7 @@ const MessageInput = ({ tid }: { tid: string }) => {
       { type: 'text', tag_id: tid + '', sender_type: 1, content: send_data || user_input_warning },
       {
         onSuccess: (data) => {
-          tempShow(tid, data);
+          pushMessage(data);
           if (!send_data) {
             sendMessage(ai_return_tips);
           } else {
@@ -101,7 +173,7 @@ const MessageInput = ({ tid }: { tid: string }) => {
         },
       }
     );
-  }, [mutate2, sendMessage, tempShow, tid, val]);
+  }, [mutate2, sendMessage, pushMessage, tid, val]);
 
   return (
     <div className={'h-full flex space-x-2 w-full'}>

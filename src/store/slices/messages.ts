@@ -12,6 +12,17 @@ export const messagesSlice = createSlice({
     setMessages: (state: Message[], action: PayloadAction<Message[]>) => {
       return action.payload;
     },
+    appendMessage: (state: Message[], action: PayloadAction<Message>) => {
+      return [...state, action.payload];
+    },
+    updateMessage: (state: Message[], action: PayloadAction<Message>) => {
+      return state.map((message) => {
+        if (message.id === action.payload.id && message.type === action.payload.type) {
+          return action.payload;
+        }
+        return message;
+      });
+    },
     // 登出就是重置
     resetMessages: () => initState,
   },

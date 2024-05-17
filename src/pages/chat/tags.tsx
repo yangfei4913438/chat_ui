@@ -1,4 +1,4 @@
-import React, { MouseEvent } from 'react';
+import React, { FC, MouseEvent } from 'react';
 import { Bot, BotMessageSquare, Pin, PinOff } from 'lucide-react';
 import useTags from '@/store/hooks/useTags';
 import { cn } from '@/lib/utils';
@@ -9,7 +9,11 @@ import useUserInfo from '@/store/hooks/useUserInfo';
 import EditTag from '@/pages/chat/editTag';
 import DelTag from '@/pages/chat/delTag';
 
-const Tags = ({ tid }: { tid: string | null }) => {
+interface IProps {
+  tid?: string;
+}
+
+const Tags: FC<IProps> = ({ tid }) => {
   const { tags } = useTags();
   const { userInfo } = useUserInfo();
   const { Link, reFresh } = useProjectRoute();

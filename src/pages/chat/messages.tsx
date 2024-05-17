@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { FC, useEffect } from 'react';
 import useTags from '@/store/hooks/useTags';
 import useRequest from 'ahooks/es/useRequest';
 import { useToast } from '@/components/ui/use-toast';
@@ -8,11 +8,19 @@ import { cacheKeys } from '@/consts/cache';
 import useMessages from '@/store/hooks/useMessages';
 import MessageInput from '@/pages/chat/messageInput';
 import ChatList from '@/pages/chat/chatList';
+import { ReduxStoreType } from '@/store';
+import { useSelector } from 'react-redux';
 
-const Messages = ({ tid }: { tid: string | null }) => {
+interface IProps {
+  tid?: string;
+}
+
+const Messages: FC<IProps> = ({ tid }) => {
+  // 取出redux中的数据，第一个泛型是整个store的导出类型，第二个是目标命名空间的类型
+  const messages = useSelector<ReduxStoreType, Message[]>((state) => state.messages);
   const { tags } = useTags();
   const { toast } = useToast();
-  const { messages, setMessages } = useMessages();
+  const { setMessages } = useMessages();
 
   const renderNull = () => {
     if (tags.length === 0) {
@@ -29,7 +37,7 @@ const Messages = ({ tid }: { tid: string | null }) => {
       if (messages.length === 0) {
         return <div className='h-full flex items-center justify-center'>暂无消息</div>;
       }
-      return <ChatList />;
+      return <ChatList messages={messages} />;
     }
     return <div className='h-full flex items-center justify-center'>选择一个会话吧！</div>;
   };
@@ -38,7 +46,7 @@ const Messages = ({ tid }: { tid: string | null }) => {
 
   console.log('tags:', tags);
 
-  const { run, loading } = useRequest(
+  const { run } = useRequest(
     async (id: string) => {
       return await getMessagesService(id);
     },
@@ -76,7 +84,7 @@ const Messages = ({ tid }: { tid: string | null }) => {
         {renderMessages()}
       </div>
       <div className='w-full px-4 flex-shrink-0 flex-grow-0'>
-        {tid && <MessageInput tid={tid} />}
+        {tid && <MessageInput tid={tid} messages={messages} />}
       </div>
     </>
   );

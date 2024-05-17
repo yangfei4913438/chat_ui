@@ -11,3 +11,7 @@ export const createMessageService = async (data: MessageCreate) => {
 export const deleteMessageService = async (id: string, tag_id: string) => {
   return await request<Message>({ name: 'delMessage', id: `${tag_id}/${id}` });
 };
+
+export const updateMessageService = async (data: MessageUpdate) => {
+  return await request<Message, MessageUpdate>({ name: 'updateMessage', data });
+};

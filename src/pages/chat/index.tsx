@@ -24,12 +24,12 @@ const Chat = () => {
   const { id } = useParams();
 
   // 获取本地缓存的 tag_id
-  const local_id = cache.getItem('tag_id');
+  const local_id = cache.getItem('tag_id') || undefined;
 
   const tid = useMemo(() => {
     if (tags.length === 0) {
       console.log('标签列表为空');
-      return null;
+      return undefined;
     }
     if (!id) {
       console.log('id 为空, 返回本地 id');
@@ -43,7 +43,7 @@ const Chat = () => {
     return local_id;
   }, [id, local_id, tags]);
 
-  const { run, loading } = useRequest(
+  const { run } = useRequest(
     async () => {
       return await getTagsService();
     },
