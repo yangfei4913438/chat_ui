@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { ai_return_tips, user_input_warning } from '@/consts/notice';
 import dayjs from 'dayjs';
+import { v4 as uuidv4 } from 'uuid';
 
 const statusMap = {
   0: '连接中',
@@ -33,7 +34,7 @@ interface IProps {
 }
 
 const MessageInput: FC<IProps> = ({ tid, messages }) => {
-  const { updateMessage, pushMessage } = useMessages();
+  const { updateMessage, pushMessage, pushMessages } = useMessages();
   const token = localCache.getItem(cacheKeys.token);
   const [val, setVal] = useState<string>('');
 
@@ -72,8 +73,10 @@ const MessageInput: FC<IProps> = ({ tid, messages }) => {
     console.log('url:', url, ' message:', message);
 
     // 不存在，自动往后台追加数据
-    const existText = messages.filter((m) => String(m.id) === id && m.type === 'text').length > 0;
-    const existMp3 = messages.filter((m) => String(m.id) === id && m.type === 'mp3').length > 0;
+    const existText =
+      messages.filter((m) => String(m.change_id) === id && m.type === 'text').length > 0;
+    const existMp3 =
+      messages.filter((m) => String(m.change_id) === id && m.type === 'mp3').length > 0;
     if (!existMp3 && url) {
       pushMessage({
         id,
@@ -158,22 +161,49 @@ const MessageInput: FC<IProps> = ({ tid, messages }) => {
     const cleanVal = DOMPurify.sanitize(val);
     // 二次过滤，移除特殊符号
     const send_data = cleanVal.replace(/<[^>]*>/g, '');
+    // 生成唯一 ID
+    const id = uuidv4();
+    // 先追加一条记录
+    pushMessages([
+      {
+        id,
+        change_id: id,
+        tag_id: tid,
+        type: 'text',
+        sender_type: 0,
+        content: send_data || user_input_warning,
+        created_at: dayjs().toISOString(),
+        updated_at: dayjs().toISOString(),
+      },
+      {
+        id: '-1',
+        tag_id: tid,
+        sender_type: 0,
+        type: 'text',
+        content: '大师正在思考中，请稍后...',
+        created_at: dayjs().toISOString(),
+        updated_at: dayjs().toISOString(),
+      },
+    ]);
     // 发送请求
     mutate2(
       { type: 'text', tag_id: tid + '', sender_type: 1, content: send_data || user_input_warning },
       {
         onSuccess: (data) => {
-          pushMessage(data);
+          // 更新完成，拿正式数据替换临时数据
+          updateMessage({ ...data, change_id: id });
+          // 发送新数据
           if (!send_data) {
             sendMessage(ai_return_tips);
           } else {
             sendMessage(send_data);
           }
+          // 清空输入框
           setVal('');
         },
       }
     );
-  }, [mutate2, sendMessage, pushMessage, tid, val]);
+  }, [val, pushMessages, tid, mutate2, updateMessage, sendMessage]);
 
   return (
     <div className={'h-full flex space-x-2 w-full'}>

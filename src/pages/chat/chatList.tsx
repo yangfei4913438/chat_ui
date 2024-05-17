@@ -32,7 +32,7 @@ const ChatList: FC<IProps> = ({ messages }) => {
       return [
         ...messages,
         {
-          id: '-1',
+          id: '-2',
           tag_id: message.tag_id,
           sender_type: 0,
           type: 'text',
@@ -53,7 +53,7 @@ const ChatList: FC<IProps> = ({ messages }) => {
       behavior: 'smooth',
     });
     // 这里只监听外部数据的变化，不能监听内部产生的数据
-  }, [messages.length, virtuosoRef]);
+  }, [messages, virtuosoRef]);
 
   return (
     <div className='space-y-2 overflow-y-auto w-full h-full'>

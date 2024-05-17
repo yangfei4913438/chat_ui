@@ -18,6 +18,11 @@ const useMessages = () => {
     dispatch(storeActions.messages.appendMessage(data));
   };
 
+  // 推送多条消息到消息列表
+  const pushMessages = (data: Message[]) => {
+    dispatch(storeActions.messages.appendMessages(data));
+  };
+
   // 更新消息
   const updateMessage = (data: Message) => {
     dispatch(storeActions.messages.updateMessage(data));
@@ -32,6 +37,7 @@ const useMessages = () => {
   return {
     updateMessage,
     pushMessage,
+    pushMessages,
     setMessages,
     resetMessages,
   };

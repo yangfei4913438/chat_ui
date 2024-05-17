@@ -15,13 +15,21 @@ export const messagesSlice = createSlice({
     appendMessage: (state: Message[], action: PayloadAction<Message>) => {
       return [...state, action.payload];
     },
+    appendMessages: (state: Message[], action: PayloadAction<Message[]>) => {
+      return [...state, ...action.payload];
+    },
     updateMessage: (state: Message[], action: PayloadAction<Message>) => {
-      return state.map((message) => {
-        if (message.id === action.payload.id && message.type === action.payload.type) {
-          return action.payload;
-        }
-        return message;
-      });
+      return state
+        .map((message) => {
+          if (
+            message.change_id === action.payload.change_id &&
+            message.type === action.payload.type
+          ) {
+            return action.payload;
+          }
+          return message;
+        })
+        .filter((m) => m.id !== '-1');
     },
     // 登出就是重置
     resetMessages: () => initState,
